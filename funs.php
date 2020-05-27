@@ -40,6 +40,7 @@ function server_start($config)
         }
       
     };
+    $git_command = $config["git_command"];
     $uri = $_GET['git'];
     $name = explode(".git",$uri)[0].".git";
     $path =  $config["git_dir"].DIRECTORY_SEPARATOR.$name;
@@ -49,7 +50,7 @@ function server_start($config)
         case 'info/refs':
             $service = $_GET['service'];
             header('Content-type: application/x-' . $service . '-advertisement');
-            $cmd = sprintf('git %s --stateless-rpc --advertise-refs %s', substr($service, 4), $path);
+            $cmd = sprintf($git_command.' %s --stateless-rpc --advertise-refs %s', substr($service, 4), $path);
             $writeLog('cmd:' . $cmd);
             exec($cmd, $outputs);
             $serverAdvert = sprintf('# service=%s', $service);
@@ -68,7 +69,7 @@ function server_start($config)
             header(sprintf('Content-type: application/x-%s-result', $action));
             $input = gzBody($input);
             // writeLog("input:".$input);
-            $cmd = sprintf('git %s --stateless-rpc %s', substr($action, 4), $path);
+            $cmd = sprintf($git_command.' %s --stateless-rpc %s', substr($action, 4), $path);
             $descs = [
                 0 => ['pipe', 'r'],
                 1 => ['pipe', 'w'],
@@ -84,6 +85,10 @@ function server_start($config)
                     echo $data;
                 }
 
+                while($ret=fgets($pipes[1]) ){
+                    echo ''.$ret;
+                }
+
                 fclose($pipes[1]);
                 fclose($pipes[2]);
 
@@ -92,7 +97,7 @@ function server_start($config)
 
             // need to update server's /info/refs file when upload object
             if ($action == 'git-receive-pack') {
-                $cmd = sprintf('git --git-dir %s update-server-info', $path);
+                $cmd = sprintf($git_command.' --git-dir %s update-server-info', $path);
                 $writeLog('cmd:' . $cmd);
                 exec($cmd);
             }

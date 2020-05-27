@@ -1,7 +1,8 @@
 {
-    "git_dir":" /Volumes/BOOTCAMP/php/phpworkspace/git-http-server/repos",
+    "git_command":"git",
+    "repos_dir":"repos_dir",
     "debug":true,
-    "log_dir":"/Volumes/BOOTCAMP/php/phpworkspace/git-http-server/test/logs",
+    "log_dir":"",
     "username":"wenshi",
     "password":"wenshi2018"
 }
