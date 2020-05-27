@@ -43,22 +43,26 @@ function server_start($config)
     $git_command = $config["git_command"];
     $uri = $_GET['git'];
     $name = explode(".git",$uri)[0].".git";
-    $path =  $config["git_dir"].DIRECTORY_SEPARATOR.$name;
+    $path =  $config["repos_dir"]."/".$name;
     $action = str_replace($name."/","",$uri);
     $writeLog("action:".$action);
     switch ($action) {
         case 'info/refs':
             $service = $_GET['service'];
-            header('Content-type: application/x-' . $service . '-advertisement');
+            $writeLog('service:' . $service);
+             header('Content-type: application/x-' . $service . '-advertisement');
             $cmd = sprintf($git_command.' %s --stateless-rpc --advertise-refs %s', substr($service, 4), $path);
             $writeLog('cmd:' . $cmd);
             exec($cmd, $outputs);
+            //print_r($outputs);
             $serverAdvert = sprintf('# service=%s', $service);
             $length = strlen($serverAdvert) + 4;
 
             echo sprintf('%04x%s0000', $length, $serverAdvert);
-            echo implode(PHP_EOL, $outputs);
-
+            $content =  implode("\n", $outputs);
+            //$content= str_replace(base64_decode("AA==")," ",$content);
+            echo $content;
+            $writeLog('content:' . $content);
             unset($outputs);
             break;
         case 'git-receive-pack':
@@ -85,10 +89,6 @@ function server_start($config)
                     echo $data;
                 }
 
-                while($ret=fgets($pipes[1]) ){
-                    echo ''.$ret;
-                }
-
                 fclose($pipes[1]);
                 fclose($pipes[2]);
 
@@ -97,7 +97,7 @@ function server_start($config)
 
             // need to update server's /info/refs file when upload object
             if ($action == 'git-receive-pack') {
-                $cmd = sprintf($git_command.' --git-dir %s update-server-info', $path);
+                $cmd = sprintf('git --git-dir %s update-server-info', $path);
                 $writeLog('cmd:' . $cmd);
                 exec($cmd);
             }
