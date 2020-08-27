@@ -5,4 +5,16 @@
     "log_dir":"/Volumes/BOOTCAMP/php/phpworkspace/git-http-server/test/logs",
     "username":"wenshi",
     "password":"wenshi2018"
+    "auth":"file or info",
+    "auth_file_info_example":{
+    "username":"wenshi",
+    "password":"wenshi2018",
+    "user":{
+        "zhangsan":"123456",
+        "lisi":"098765"
+    },
+    "auth":{
+        "aaa/bbb.git":["zhangsan"]
+    }
+}
 }
